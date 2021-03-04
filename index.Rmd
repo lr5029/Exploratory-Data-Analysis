@@ -1,5 +1,5 @@
 ---
-title: "Ancestry Take-Home Exercise"
+title: "Exploratory Data Analysis"
 author: "Ran Liao"
 date: "3/3/2021"
 output: html_document
@@ -9,8 +9,6 @@ output: html_document
 library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
-
-## Exploratory Data Analysis
 
 ### Research Question: What fraction of the observed customers cross-sell to subscription?
 
