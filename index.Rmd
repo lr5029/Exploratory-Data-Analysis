@@ -64,4 +64,4 @@ cross_sell <- nrow(dt2)
 cross_sell_rate <- cross_sell/total_customers
 ```
 
-Therefore, there are `r cross_sell` customers who are cross sell (from DNA to ACOM subscription), about `r round(cross_sell_rate,4)*100`% of the total observed customers from Ancestry dataset. 
+Therefore, there are `r cross_sell` customers who are cross sell (from DNA to ACOM subscription), about `r round(cross_sell_rate,4)*100`% of the total observed customers from the dataset. 
