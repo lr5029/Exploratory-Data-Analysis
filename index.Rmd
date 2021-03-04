@@ -1,0 +1,69 @@
+---
+title: "Ancestry Take-Home Exercise"
+author: "Ran Liao"
+date: "3/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Exploratory Data Analysis
+
+### Research Question: What fraction of the observed customers cross-sell to subscription?
+
+We consider a customer to be a cross sell (from DNA to ACOM subscription) when the
+following conditions are met in the data:  
+* xsell_gsa == 1. The customer became a new ACOM subscriber.  
+* xsell_day_exact <= 120. The customer purchased their ACOM subscription
+within 120 days of their DNA product order.  
+
+```{r}
+data <- read.csv("take-home_exercise_data.csv")
+summary(data)
+```
+
+For the purpose of our question, we are interested in  
+1. prospectid (Unique identifier for customers),  
+2. xsell_gsa (Indicates a new ACOM Subscriber Addition) which takes value of 0 or 1,  
+3. xsell_day_exact (Days between DNA sale and ACOM subscription) which has 211363 missing values denoted by NA  
+
+```{r}
+target <- data %>% select(prospectid, xsell_gsa, xsell_day_exact)
+total_customers <- nrow(target)
+
+target %>% 
+  count(xsell_gsa)
+dt <- target %>% filter(xsell_gsa == 1)
+# is.na(dt)
+# equivalent to drop_na(target)
+both_subscriber <- nrow(dt)
+```
+From above, we know that when xsell_gsa == 0, xsell_day_exact would have NA indicating missing values. This makes sense as if a customer did not additionally subscribe to ACOM, it definitely would not have information about the Days between DNA sale and ACOM subscription. Specifically, out of `r total_customers` observed customers, there are `r both_subscriber` customers who subscribed to both DNA and ACOM. Though, we have another criteria we want to consider for our interest.
+```{r Inspection and Visualization}
+ggplot(data) + 
+  geom_histogram(mapping = aes(x = xsell_day_exact), binwidth = 240)
+
+ggplot(data) + 
+  geom_histogram(mapping = aes(x = xsell_day_exact), binwidth = 240) + 
+  coord_cartesian(ylim = c(0, 500))
+
+target %>% 
+  count(cut_width(xsell_day_exact, 240))
+```
+From both the inspection and visualization of the distribution for xsell_day_exact, we can see that the customer purchased ACOM subscription within 120 days of DNA product order is quite common. In general, typical values lays between 0 and 1800 while there are about 9 outliers ranging above 40000 days. Assume that each year has 365.25 days, we know that 40000 days would be about 109 years, so it is reasonable to suspect that these values are implausible. We could drop the rows with these unusual values or replacing the unusual values with missing values to move on with the analysis.   
+Though, consider the total number of customers and the criteria we are using for this specific question, these values would not have effect on our analysis, so it is fine to leave it like this.
+
+
+```{r}
+dt2 <- dt %>% 
+  filter(xsell_day_exact <= 120)
+
+cross_sell <- nrow(dt2)
+
+cross_sell_rate <- cross_sell/total_customers
+```
+
+Therefore, there are `r cross_sell` customers who are cross sell (from DNA to ACOM subscription), about `r round(cross_sell_rate,4)*100`% of the total observed customers from Ancestry dataset. 
